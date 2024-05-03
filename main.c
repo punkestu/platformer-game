@@ -12,6 +12,9 @@ struct TheObject
 
 int main()
 {
+    struct Factory *factory = create_factory();
+    struct Level1Utils *level1Utils = level1_init(factory);
+
     const float gravity = 0.98f;
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -22,9 +25,6 @@ int main()
         800, 600,
         SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-
-    struct Factory *factory = create_list_mob();
-    struct Level1Utils *level1Utils = level1_init(factory);
 
     int frame = 0;
     int ticker = 0;
@@ -67,7 +67,7 @@ int main()
     }
 
     level1_destroy(level1Utils);
-    destroy_list_mob(factory);
+    destroy_factory(factory);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

@@ -26,6 +26,7 @@ struct List *create_list_with_items(void **items, size_t size)
 }
 void destroy_list(struct List *list)
 {
+    free(list->items);
     free(list);
 }
 void *get(struct List *list, size_t index)
