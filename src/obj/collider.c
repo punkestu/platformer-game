@@ -54,7 +54,7 @@ void block_with_solid_movable(struct SolidMovable *a, struct SolidMovable *b, in
     const float nextBxw = nextBx + b->mov->body->w;
     const float nextBy = b->mov->pos.y + b->mov->vel.y * (float)delta / 1000.f;
     const float nextByh = nextBy + b->mov->body->h;
-    if (a->mov->vel.y >= 0 && (nextAyh >= nextBy && a->mov->pos.y + a->mov->body->h <= b->mov->pos.y && a->mov->pos.x <= b->mov->pos.x + b->mov->body->w && a->mov->pos.x + a->mov->body->w >= b->mov->body->x) && !(a->isColliding & DOWN))
+    if (a->mov->vel.y >= 0 && ((nextAyh >= nextBy || nextAyh >= b->mov->pos.y) && a->mov->pos.y + a->mov->body->h <= b->mov->pos.y && a->mov->pos.x <= b->mov->pos.x + b->mov->body->w && a->mov->pos.x + a->mov->body->w >= b->mov->body->x) && !(a->isColliding & DOWN))
     {
         a->mov->pos.y = b->mov->pos.y - a->mov->body->h;
         a->mov->vel.y = 0;
@@ -65,7 +65,7 @@ void block_with_solid_movable(struct SolidMovable *a, struct SolidMovable *b, in
             b->isColliding |= UP;
         }
     }
-    if (a->mov->vel.y <= 0 && (nextAy <= nextByh && a->mov->pos.y >= b->mov->pos.y + b->mov->body->h && a->mov->pos.x < b->mov->pos.x + b->mov->body->w && a->mov->pos.x + a->mov->body->w > b->mov->pos.x) && !(a->isColliding & UP))
+    if (a->mov->vel.y <= 0 && ((nextAy <= nextByh || nextAy <= b->mov->pos.y + b->mov->body->h) && a->mov->pos.y >= b->mov->pos.y + b->mov->body->h && a->mov->pos.x <= b->mov->pos.x + b->mov->body->w && a->mov->pos.x + a->mov->body->w >= b->mov->pos.x) && !(a->isColliding & UP))
     {
         a->mov->pos.y = b->mov->pos.y + b->mov->body->h;
         a->mov->vel.y = 0;
@@ -76,7 +76,7 @@ void block_with_solid_movable(struct SolidMovable *a, struct SolidMovable *b, in
             b->isColliding |= DOWN;
         }
     }
-    if (a->mov->vel.x >= 0 && (nextAxw >= nextBx && a->mov->pos.x + a->mov->body->w <= b->mov->pos.x && a->mov->pos.y < b->mov->pos.y + b->mov->body->h && a->mov->pos.y + a->mov->body->h > b->mov->body->y) && !(a->isColliding & RIGHT))
+    if (a->mov->vel.x >= 0 && ((nextAxw >= nextBx || nextAxw >= b->mov->pos.x) && a->mov->pos.x + a->mov->body->w <= b->mov->pos.x && a->mov->pos.y < b->mov->pos.y + b->mov->body->h && a->mov->pos.y + a->mov->body->h > b->mov->body->y) && !(a->isColliding & RIGHT))
     {
         a->mov->pos.x = b->mov->pos.x - a->mov->body->w;
         a->mov->vel.x = 0;
@@ -87,7 +87,7 @@ void block_with_solid_movable(struct SolidMovable *a, struct SolidMovable *b, in
             b->isColliding |= LEFT;
         }
     }
-    if (a->mov->vel.x <= 0 && (nextAx <= nextBxw && a->mov->pos.x >= b->mov->pos.x + b->mov->body->w && a->mov->pos.y < b->mov->pos.y + b->mov->body->h && a->mov->pos.y + a->mov->body->h > b->mov->pos.y) && !(a->isColliding & LEFT))
+    if (a->mov->vel.x <= 0 && ((nextAx <= nextBxw || nextAx <= b->mov->pos.x + b->mov->body->w) && a->mov->pos.x >= b->mov->pos.x + b->mov->body->w && a->mov->pos.y < b->mov->pos.y + b->mov->body->h && a->mov->pos.y + a->mov->body->h > b->mov->pos.y) && !(a->isColliding & LEFT))
     {
         a->mov->pos.x = b->mov->pos.x + b->mov->body->w;
         a->mov->vel.x = 0;
@@ -115,6 +115,8 @@ void block_with_solid_movables(struct List *listSolidMovable, int delta)
         struct SolidMovable *movable = (struct SolidMovable *)get(listSolidMovable, i);
         for (size_t j = 0; j < listSolidMovable->size; j++)
         {
+            if (i == j)
+                continue;
             struct SolidMovable *collider = (struct SolidMovable *)get(listSolidMovable, j);
             block_with_solid_movable(movable, collider, delta);
         }
