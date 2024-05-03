@@ -60,7 +60,4 @@ void destroy_solid_movable(struct SolidMovable *solidMov);
 void block_with_solid_movable(struct SolidMovable *a, struct SolidMovable *b, int delta);
 void block_with_solid_movables(struct List *listSolidMovable, int delta);
 
-void move_camera(struct List *listObj, struct Vec2f *camera);
-void follow_camera(struct Vec2f *camera, struct Movable *player);
-
 #endif // OBJ_H___

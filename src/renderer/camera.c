@@ -1,4 +1,4 @@
-#include "obj.h"
+#include "../obj/obj.h"
 
 void move_camera(struct List *listObj, struct Vec2f *camera)
 {
