@@ -15,3 +15,18 @@ void render_objs(SDL_Renderer *renderer, struct List *listRenderable)
         render(renderer, rend);
     }
 }
+
+void render_gl(struct RenderableGL *rend)
+{
+    glUseProgram(rend->shaderID);
+    glBindVertexArray(rend->vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+void render_objs_gl(struct List *listRenderableGL)
+{
+    for (int i = 0; i < listRenderableGL->size; i++)
+    {
+        struct RenderableGL *rend = (struct RenderableGL *)get(listRenderableGL, i);
+        render_gl(rend);
+    }
+}

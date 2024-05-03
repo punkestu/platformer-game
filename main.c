@@ -1,7 +1,4 @@
-#include <SDL2/SDL.h>
-#include "src/obj/obj.h"
-#include "src/renderer/renderer.h"
-#include "src/factory/factory.h"
+#include "src/engine.h"
 #include "game/level1/level1.h"
 
 struct TheObject
@@ -12,9 +9,6 @@ struct TheObject
 
 int main()
 {
-    struct Factory *factory = create_factory();
-    struct Level1Utils *level1Utils = level1_init(factory);
-
     const float gravity = 0.98f;
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -25,6 +19,28 @@ int main()
         800, 600,
         SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+    if (!context)
+    {
+        printf("Failed to create OpenGL context: %s\n", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+    GLenum glewError = glewInit();
+    if (glewError != GLEW_OK)
+    {
+        printf("GLEW initialization failed: %s\n", glewGetErrorString(glewError));
+        SDL_GL_DeleteContext(context);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return 1;
+    }
+    glViewport(0, 0, 800, 600);
+
+    struct Factory *factory = create_factory();
+    struct Level1Utils *level1Utils = level1_init(factory);
 
     int frame = 0;
     int ticker = 0;
@@ -54,7 +70,8 @@ int main()
             level1_handle_input(level1Utils, &e);
         }
         level1_update(level1Utils, delta);
-        level1_render(level1Utils, renderer);
+        // level1_render(level1Utils, renderer);
+        level1_render_gl(level1Utils, window);
 
         frame++;
         ticker += delta;
@@ -66,7 +83,10 @@ int main()
         }
     }
 
+    SDL_Log("Exiting...");
+
     level1_destroy(level1Utils);
+    SDL_Log("Exited successfully!");
     destroy_factory(factory);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

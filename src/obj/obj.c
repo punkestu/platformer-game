@@ -22,6 +22,52 @@ void destroy_renderable(struct Renderable *rend)
     free(rend);
 }
 
+struct RenderableGL *create_renderable_gl(struct Object *obj, const struct Vec4f boundary)
+{
+    struct RenderableGL *rend = malloc(sizeof(struct RenderableGL));
+    rend->body = obj;
+    generate_shader(&rend->shaderID);
+    glGenVertexArrays(1, &rend->vao);
+    glBindVertexArray(rend->vao);
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    float vertices[] = {
+        boundary.x, boundary.y,
+        boundary.x + boundary.z, boundary.y,
+        boundary.x + boundary.z, boundary.y + boundary.w,
+        boundary.x, boundary.y + boundary.w};
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    GLuint ebo;
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    GLuint indices[] = {
+        0, 1, 2,
+        2, 3, 0};
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindVertexArray(0);
+    return rend;
+}
+void set_uniform_value(struct RenderableGL *rend, const char *name, GLuint ty, void* value)
+{
+    glUseProgram(rend->shaderID);
+    if (ty == GL_FLOAT)
+        glUniform1f(glGetUniformLocation(rend->shaderID, name), *(float*)value);
+    else if (ty == GL_FLOAT_VEC2)
+        glUniform2fv(glGetUniformLocation(rend->shaderID, name), 1, (float*)value);
+    else if (ty == GL_FLOAT_VEC4)
+        glUniform4fv(glGetUniformLocation(rend->shaderID, name), 1, (float*)value);
+    glUseProgram(0);
+}
+void destroy_renderable_gl(struct RenderableGL *rend)
+{
+    free(rend);
+}
+
 struct Movable *create_movable(struct Object *obj)
 {
     struct Movable *mov = malloc(sizeof(struct Movable));

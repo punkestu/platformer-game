@@ -9,6 +9,7 @@ struct Factory
     struct List *list;
     struct List *obj;
     struct List *renderable;
+    struct List *renderableGL;
     struct List *movable;
     struct List *solid;
     struct List *solidMovable;
@@ -21,6 +22,7 @@ struct Mob
 {
     struct Object *obj;
     struct Renderable *rend;
+    struct RenderableGL *rendGL;
     struct Movable *mov;
     struct SolidMovable *solidMov;
     struct Solid *solid;
@@ -28,6 +30,7 @@ struct Mob
 };
 struct Mob *create_mob(struct Factory *factory, const struct Vec2f pos);
 void be_renderable(struct Factory *factory, struct Mob *mob, const SDL_Rect representation);
+void be_renderable_gl(struct Factory *factory, struct Mob *mob, const struct Vec4f boundary);
 void be_movable(struct Factory *factory, struct Mob *mob);
 void be_solid(struct Factory *factory, struct Mob *mob, const SDL_Rect collBox, const char dir);
 void be_solid_movable(struct Factory *factory, struct Mob *mob, const SDL_Rect collBox);

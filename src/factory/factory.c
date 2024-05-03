@@ -6,6 +6,7 @@ struct Factory *create_factory()
     mobList->list = create_list();
     mobList->obj = create_list();
     mobList->renderable = create_list();
+    mobList->renderableGL = create_list();
     mobList->movable = create_list();
     mobList->solid = create_list();
     mobList->solidMovable = create_list();
@@ -19,6 +20,8 @@ void clean_factory(struct Factory *factory)
     factory->obj = create_list();
     destroy_list(factory->renderable);
     factory->renderable = create_list();
+    destroy_list(factory->renderableGL);
+    factory->renderableGL = create_list();
     destroy_list(factory->movable);
     factory->movable = create_list();
     destroy_list(factory->solid);
@@ -36,6 +39,7 @@ void destroy_factory(struct Factory *factory)
     destroy_list(factory->list);
     destroy_list(factory->obj);
     destroy_list(factory->renderable);
+    destroy_list(factory->renderableGL);
     destroy_list(factory->movable);
     destroy_list(factory->solid);
     destroy_list(factory->solidMovable);
@@ -47,6 +51,7 @@ struct Mob *create_mob(struct Factory *factory, const struct Vec2f pos)
     struct Mob *mob = malloc(sizeof(struct Mob));
     mob->obj = create_object(pos);
     mob->rend = NULL;
+    mob->rendGL = NULL;
     mob->mov = NULL;
     mob->solidMov = NULL;
     mob->solid = NULL;
@@ -65,6 +70,18 @@ void be_renderable(struct Factory *factory, struct Mob *mob, const SDL_Rect repr
         struct Mob *mob = (struct Mob *)get(factory->list, i);
         if (mob->rend != NULL)
             add(factory->renderable, mob->rend);
+    }
+}
+void be_renderable_gl(struct Factory *factory, struct Mob *mob, const struct Vec4f boundary)
+{
+    mob->rendGL = create_renderable_gl(mob->obj, boundary);
+    destroy_list(factory->renderableGL);
+    factory->renderableGL = create_list();
+    for (size_t i = 0; i < factory->list->size; i++)
+    {
+        struct Mob *mob = (struct Mob *)get(factory->list, i);
+        if (mob->rendGL != NULL)
+            add(factory->renderableGL, mob->rendGL);
     }
 }
 void be_movable(struct Factory *factory, struct Mob *mob)
@@ -108,6 +125,7 @@ void delete_mob(struct Factory *factory, struct Mob *mob)
     remove_at(factory->list, mob->index);
     destroy_object(mob->obj);
     destroy_renderable(mob->rend);
+    destroy_renderable_gl(mob->rendGL);
     destroy_movable(mob->mov);
     destroy_solid_movable(mob->solidMov);
     destroy_solid(mob->solid);
@@ -127,6 +145,8 @@ void delete_mob(struct Factory *factory, struct Mob *mob)
         add(factory->obj, mob->obj);
         if (mob->rend != NULL)
             add(factory->renderable, mob->rend);
+        if (mob->rendGL != NULL)
+            add(factory->renderableGL, mob->rendGL);
         if (mob->mov != NULL)
             add(factory->movable, mob->mov);
         if (mob->solid != NULL)

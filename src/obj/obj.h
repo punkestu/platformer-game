@@ -1,8 +1,9 @@
 #ifndef OBJ_H___
 #define OBJ_H___
 
-#include <SDL2/SDL.h>
+#include "../include.h"
 #include "../utils/list.h"
+#include "../utils/gl.h"
 
 enum Direction
 {
@@ -10,12 +11,6 @@ enum Direction
     DOWN = 0b0010,
     LEFT = 0b0100,
     RIGHT = 0b1000,
-};
-
-struct Vec2f
-{
-    float x;
-    float y;
 };
 
 struct Object
@@ -33,6 +28,16 @@ struct Renderable
 };
 struct Renderable *create_renderable(struct Object *obj, const SDL_Rect representation);
 void destroy_renderable(struct Renderable *rend);
+
+struct RenderableGL
+{
+    struct Object *body;
+    GLuint vao;
+    GLuint shaderID;
+};
+struct RenderableGL *create_renderable_gl(struct Object *obj, const struct Vec4f boundary);
+void set_uniform_value(struct RenderableGL *rend, const char *name, GLuint ty, void* value);
+void destroy_renderable_gl(struct RenderableGL *rend);
 
 struct Movable
 {
